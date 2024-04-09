@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD Curso</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Courses</h1>
+
+    <h2>Add a new course</h2>
+    <form id="add-course-form">
+        <label for="course-name">Name:</label>
+        <input type="text" id="course-name" required>
+        <button type="submit">Add course</button>
+    </form>
+
+    <h2>Update a course</h2>
+    <form id="update-course-form">
+        <label for="course-id">ID:</label>
+        <input type="number" id="course-id" required>
+        <label for="course-name">Name:</label>
+        <input type="text" id="course-name" required>
+        <button type="submit">Update course</button>
+    </form>
+
+    <h2>Delete a course</h2>
+    <form id="delete-course-form">
+        <label for="course-id">ID:</label>
+        <input type="number" id="course-id" required>
+        <button type="submit">Delete course</button>
+    </form>
+
+    <h2>Courses</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+            </tr>
+        </thead>
+        <tbody id="courses-table-body"></tbody>
+    </table>
+
+    <script>
+        // Fetch all courses and populate the table
+        async function fetchCourses() {
+            const response = await fetch('/cursos');
+            const courses = await response.json();
+            return courses;
+        }
+
+        // Add a new course
+        async function addCourse(name) {
+            const response = await fetch('/cursos', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ nome: name })
+            });
+            const course = await response.json();
+            return course;
+        }
+
+        // Update a course
+        async function updateCourse(id, name) {
+            const response = await fetch(`/cursos/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ nome: name })
+            });
+            const course = await response.json();
+            return course;
+        }
+
+        // Delete a course
+        async function deleteCourse(id) {
+            await fetch(`/cursos/${id}`, {
+                method: 'DELETE'
+            });
+        }
+
+        // Populate the courses table
+        async function populateCoursesTable() {
+            const courses = await fetchCourses();
+            const tableBody = document.getElementById('courses-table-body');
+            tableBody.innerHTML = '';
+            courses.forEach(course => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${course.cursoid}</td>
+                    <td>${course.nome}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Add event listeners for the forms
+        document.getElementById('add-course-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const name = document.getElementById('course-name').value;
+            const course = await addCourse(name);
+            populateCoursesTable();
+        });
+
+        document.getElementById('update-course-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const id = parseInt(document.getElementById('course-id').value);
+            const name = document.getElementById('course-name').value;
+            await updateCourse(id, name);
+            populateCoursesTable();
+        });
+
+        document.getElementById('delete-course-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const id = parseInt(document.getElementById('course-id').value);
+            await deleteCourse(id);
+            populateCoursesTable();
+        });
+
+        // Populate the table on load
+        populateCoursesTable();
+    </script>
+</body>
+</html>
