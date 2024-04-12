@@ -18,10 +18,10 @@
 
     <h2>Update a course</h2>
     <form id="update-course-form">
-        <label for="course-id">ID:</label>
-        <input type="number" id="course-id" required>
-        <label for="course-name">Name:</label>
-        <input type="text" id="course-name" required>
+        <label for="update-course-id">ID:</label>
+        <input type="number" id="update-course-id" required>
+        <label for="update-course-name">Name:</label>
+        <input type="text" id="update-course-name" required>
         <button type="submit">Update course</button>
     </form>
 
@@ -42,6 +42,132 @@
         </thead>
         <tbody id="courses-table-body"></tbody>
     </table>
+
+    <h2>Add a new student</h2>
+    <form id="add-student-form">
+        <label for="student-name">Name:</label>
+        <input type="text" id="student-name" required>
+        <label for="student-ra">RA:</label>
+        <input type="number" id="student-ra" required>
+        <label for="student-course-id">Course ID:</label>
+        <input type="number" id="student-course-id" required>
+        <button type="submit">Add student</button>
+    </form>
+    
+    <form id="update-student-form">
+        <label for="update-student-id">ID:</label>
+        <input type="number" id="update-student-id" required>
+        <label for="update-student-name">Name:</label>
+        <input type="text" id="update-student-name" required>
+        <label for="update-student-ra">RA:</label>
+        <input type="number" id="update-student-ra" required>
+        <label for="update-student-course-id">Course ID:</label>
+        <input type="number" id="update-student-course-id" required>
+        <button type="submit">Update student</button>
+    </form>
+    
+    <form id="delete-student-form">
+        <label for="delete-student-id">ID:</label>
+        <input type="number" id="delete-student-id" required>
+        <button type="submit">Delete student</button>
+    </form>
+
+    <h1>Students</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>RA</th>
+                <th>Course ID</th>
+            </tr>
+        </thead>
+        <tbody id="students-table-body"></tbody>
+    </table>
+
+    <!-- Formulário para adicionar um novo professor -->
+    <h2>Add a new professor</h2>
+    <form id="add-professor-form">
+        <label for="professor-name">Name:</label>
+        <input type="text" id="professor-name" required>
+        <button type="submit">Add professor</button>
+    </form>
+
+    <!-- Formulário para atualizar um professor existente -->
+    <h2>Update a professor</h2>
+    <form id="update-professor-form">
+        <label for="update-professor-id">ID:</label>
+        <input type="number" id="update-professor-id" required>
+        <label for="update-professor-name">Name:</label>
+        <input type="text" id="update-professor-name" required>
+        <button type="submit">Update professor</button>
+    </form>
+
+    <!-- Formulário para deletar um professor -->
+    <h2>Delete a professor</h2>
+    <form id="delete-professor-form">
+        <label for="delete-professor-id">ID:</label>
+        <input type="number" id="delete-professor-id" required>
+        <button type="submit">Delete professor</button>
+    </form>
+
+            <h1>Professors</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                </tr>
+            </thead>
+            <tbody id="professors-table-body"></tbody>
+        </table>
+
+    <!-- Formulário para adicionar uma nova matéria -->
+    <h2>Add a new subject</h2>
+    <form id="add-subject-form">
+        <label for="subject-name">Name:</label>
+        <input type="text" id="subject-name" required>
+        <label for="subject-course-id">Course ID:</label>
+        <input type="number" id="subject-course-id" required>
+        <label for="subject-professor-id">Professor ID:</label>
+        <input type="number" id="subject-professor-id" required>
+        <button type="submit">Add subject</button>
+    </form>
+
+    <!-- Formulário para atualizar uma matéria existente -->
+    <h2>Update a subject</h2>
+    <form id="update-subject-form">
+        <label for="update-subject-id">ID:</label>
+        <input type="number" id="update-subject-id" required>
+        <label for="update-subject-name">Name:</label>
+        <input type="text" id="update-subject-name" required>
+        <label for="update-subject-course-id">Course ID:</label>
+        <input type="number" id="update-subject-course-id" required>
+        <label for="update-subject-professor-id">Professor ID:</label>
+        <input type="number" id="update-subject-professor-id" required>
+        <button type="submit">Update subject</button>
+    </form>
+
+    <!-- Formulário para deletar uma matéria -->
+    <h2>Delete a subject</h2>
+    <form id="delete-subject-form">
+        <label for="delete-subject-id">ID:</label>
+        <input type="number" id="delete-subject-id" required>
+        <button type="submit">Delete subject</button>
+    </form>
+
+    
+    <h2>Materia</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+            </tr>
+        </thead>
+        <tbody id="Materia-table-body"></tbody>
+    </table>
+
 
     <script>
         // Fetch all courses and populate the table
@@ -64,8 +190,8 @@
             return course;
         }
 
-        // Update a course
-        async function updateCourse(id, name) {
+         // Update a course
+         async function updateCourse(id, name) {
             const response = await fetch(`/cursos/${id}`, {
                 method: 'PUT',
                 headers: {
@@ -109,8 +235,8 @@
 
         document.getElementById('update-course-form').addEventListener('submit', async (event) => {
             event.preventDefault();
-            const id = parseInt(document.getElementById('course-id').value);
-            const name = document.getElementById('course-name').value;
+            const id = parseInt(document.getElementById('update-course-id').value);
+            const name = document.getElementById('update-course-name').value;
             await updateCourse(id, name);
             populateCoursesTable();
         });
@@ -122,8 +248,164 @@
             populateCoursesTable();
         });
 
+        // Funções JavaScript para CRUD de Aluno
+        async function fetchStudents() {
+    const response = await fetch('/alunos');
+    const students = await response.json();
+    return students;
+}
+
+async function addStudent(name, ra, courseId) {
+    const response = await fetch('/alunos', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ nome: name, ra: ra, cursoId: courseId })
+    });
+    const student = await response.json();
+    return student;
+}
+
+async function updateStudent(id, name, ra, courseId) {
+    const response = await fetch(`/alunos/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ nome: name, ra: ra, cursoId: courseId })
+    });
+    const student = await response.json();
+    return student;
+}
+
+async function deleteStudent(id) {
+    await fetch(`/alunos/${id}`, {
+        method: 'DELETE'
+    });
+}
+
+async function populateStudentsTable() {
+    const students = await fetchStudents();
+    const tableBody = document.getElementById('students-table-body');
+    tableBody.innerHTML = '';
+    students.forEach(student => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${student.alunoID}</td>
+            <td>${student.nome}</td>
+            <td>${student.ra}</td>
+            <td>${student.cursoID}</td>
+        `;
+        tableBody.appendChild(row);
+    });
+}
+
+document.getElementById('add-student-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const name = document.getElementById('student-name').value;
+    const ra = parseInt(document.getElementById('student-ra').value);
+    const courseId = parseInt(document.getElementById('student-course-id').value);
+    await addStudent(name, ra, courseId);
+    populateStudentsTable();
+});
+
+
+
+// Add event listeners for the professor forms
+document.getElementById('add-professor-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const name = document.getElementById('professor-name').value;
+    await addProfessor(name);
+    populateProfessorsTable();
+});
+
+document.getElementById('update-professor-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const id = parseInt(document.getElementById('update-professor-id').value);
+    const name = document.getElementById('update-professor-name').value;
+    await updateProfessor(id, name);
+    populateProfessorsTable();
+});
+
+document.getElementById('delete-professor-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const id = parseInt(document.getElementById('delete-professor-id').value);
+    await deleteProfessor(id);
+    populateProfessorsTable();
+});
+
+// Funções JavaScript para CRUD de Matéria
+async function fetchSubjects() {
+    const response = await fetch('/materias');
+    const subjects = await response.json();
+    return subjects;
+}
+
+async function addSubject(name, courseId, professorId) {
+    const response = await fetch('/materias', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ nome: name, cursoId: courseId, professorId: professorId })
+    });
+    const subject = await response.json();
+    return subject;
+}
+
+async function updateSubject(id, name, courseId, professorId) {
+    const response = await fetch(`/materias/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ nome: name, cursoId: courseId, professorId: professorId })
+    });
+    const subject = await response.json();
+    return subject;
+}
+
+async function deleteSubject(id) {
+    await fetch(`/materias/${id}`, {
+        method: 'DELETE'
+    });
+
+    // Add event listeners for the subject forms
+document.getElementById('add-subject-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const name = document.getElementById('subject-name').value;
+    const courseId = parseInt(document.getElementById('subject-course-id').value);
+    const professorId = parseInt(document.getElementById('subject-professor-id').value);
+    await addSubject(name, courseId, professorId);
+    populateSubjectsTable();
+});
+
+document.getElementById('update-subject-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const id = parseInt(document.getElementById('update-subject-id').value);
+    const name = document.getElementById('update-subject-name').value;
+    const courseId = parseInt(document.getElementById('update-subject-course-id').value);
+    const professorId = parseInt(document.getElementById('update-subject-professor-id').value);
+    await updateSubject(id, name, courseId, professorId);
+    populateSubjectsTable();
+});
+
+document.getElementById('delete-subject-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const id = parseInt(document.getElementById('delete-subject-id').value);
+    await deleteSubject(id);
+    populateSubjectsTable();
+});
+
+}
+
         // Populate the table on load
         populateCoursesTable();
+        populateStudentsTable();
+        populateProfessorsTable();
+        populateSubjectsTable();
+
     </script>
 </body>
 </html>
