@@ -140,6 +140,7 @@ app.delete('/alunos/:id', async (req, res) => {
 
 
 
+
 // Rota para obter todos os professores
 app.get('/professores', async (req, res) => {
   try {
@@ -153,9 +154,9 @@ app.get('/professores', async (req, res) => {
 
 // Rota para criar um novo professor
 app.post('/professores', async (req, res) => {
-  const { nome } = req.body;
+  const { nome, rp } = req.body;
   try {
-    const result = await pool.query('INSERT INTO Professor (Nome) VALUES ($1) RETURNING *', [nome]);
+    const result = await pool.query('INSERT INTO Professor (Nome, Rp) VALUES ($1, $2) RETURNING *', [nome, rp]);
     res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error('Error executing query', err);
@@ -166,9 +167,9 @@ app.post('/professores', async (req, res) => {
 // Rota para atualizar um professor existente
 app.put('/professores/:id', async (req, res) => {
   const { id } = req.params;
-  const { nome } = req.body;
+  const { nome, rp } = req.body;
   try {
-    const result = await pool.query('UPDATE Professor SET Nome = $1 WHERE ProfessorID = $2 RETURNING *', [nome, id]);
+    const result = await pool.query('UPDATE Professor SET Nome = $1, Rp = $2 WHERE ProfessorID = $3 RETURNING *', [nome, rp, id]);
     if (result.rows.length > 0) {
       res.json(result.rows[0]);
     } else {
@@ -194,62 +195,6 @@ app.delete('/professores/:id', async (req, res) => {
     res.status(500).send('Error deleting professor');
   }
 });
-
-
-// Rota para obter todas as matérias
-app.get('/materias', async (req, res) => {
-  try {
-    const result = await pool.query('SELECT * FROM Materia');
-    res.json(result.rows);
-  } catch (err) {
-    console.error('Error executing query', err);
-    res.status(500).send('Error getting subjects');
-  }
-});
-
-// Rota para criar uma nova matéria
-app.post('/materias', async (req, res) => {
-  const { nome, cursoId, professorId } = req.body;
-  try {
-    const result = await pool.query('INSERT INTO Materia (Nome, CursoID, ProfessorID) VALUES ($1, $2, $3) RETURNING *', [nome, cursoId, professorId]);
-    res.status(201).json(result.rows[0]);
-  } catch (err) {
-    console.error('Error executing query', err);
-    res.status(500).send('Error creating subject');
-  }
-});
-
-// Rota para atualizar uma matéria existente
-app.put('/materias/:id', async (req, res) => {
-  const { id } = req.params;
-  const { nome, cursoId, professorId } = req.body;
-  try {
-    const result = await pool.query('UPDATE Materia SET Nome = $1, CursoID = $2, ProfessorID = $3 WHERE MateriaID = $4 RETURNING *', [nome, cursoId, professorId, id]);
-    if (result.rows.length > 0) {
-      res.json(result.rows[0]);
-    } else {
-      res.status(404).send('Subject not found');
-    }
-  } catch (err) {
-    console.error('Error executing query', err);
-    res.status(500).send('Error updating subject');
-  }
-});
-
-// Rota para excluir uma matéria
-app.delete('/materias/:id', async (req, res) => {
-  const { id } = req.params;
-  if (!Number.isInteger(parseInt(id))) {
-    return res.status(400).send('Invalid subject ID');
-  }
-  try {
-    await pool.query('DELETE FROM Materia WHERE MateriaID = $1', [id]);
-    res.send('Subject deleted successfully');
-  } catch (err) {
-    console.error('Error executing query', err);
-    res.status( 500).send('Error deleting subject');
-    }
-  });
 
 
 
