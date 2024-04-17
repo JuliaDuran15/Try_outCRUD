@@ -46,7 +46,7 @@
                 const div = document.createElement('div');
                 div.textContent = `${result.nome}`;
                 div.dataset.id = result.cursoid;
-                if (target.classList.contains('courses')) {
+                if (target.classList.contains('course')) {
                     div.contentEditable = 'true';
                     div.addEventListener('blur', () => updateCourse(div));
                     div.addEventListener('dblclick', (e) => deleteCourse(e, div));
