@@ -18,7 +18,17 @@
         <input type="text" id="course-name" required>
         <button type="submit">Save</button>
     </form>
-    <div id="results" class="courses"></div>
+    <div id="course-results" class="courses"></div>
+    <h2>Atualizar Curso</h2>
+    <form id="updateCourseForm">
+        <label for="courseId">ID do Curso:</label>
+        <input type="text" id="courseId" name="courseId" required><br><br>
+
+        <label for="courseName">Nome do Curso:</label>
+        <input type="text" id="courseName" name="courseName" required><br><br>
+
+        <button type="button" onclick="updateCourse()">Atualizar Curso</button>
+    </form>
 
     <h1>Students</h1>
     <form id="student-form">
@@ -33,207 +43,355 @@
         </select>
         <button type="submit">Save</button>
     </form>
-    <div id="results" class="students"></div>
+    <div id="student-results" class="results"></div> <!-- Renomeado o ID para "student-results" -->
+
+    <h1>Professors</h1>
+    <form id="professor-form">
+        <input type="hidden" id="professor-id" value="0">
+        <label for="professor-name">Name:</label>
+        <input type="text" id="professor-name" required>
+        <label for="professor-rp">RP:</label>
+        <input type="text" id="professor-rp" required>
+        <button type="submit">Save</button>
+    </form>
+    <div class="professors"></div>
 
     <script>
-        const courseForm = document.getElementById('course-form');
-        const studentForm = document.getElementById('student-form');
 
-        // Helper function to display courses and students
-        function displayResults(results, target) {
-            target.innerHTML = '';
-            results.forEach(result => {
+        const professorForm = document.getElementById('professor-form');
+
+        // Helper function to display professors
+        function displayProfessors(professors) {
+            const professorsContainer = document.querySelector('.professors');
+            professorsContainer.innerHTML = '';
+
+            professors.forEach(professor => {
                 const div = document.createElement('div');
-                div.textContent = `${result.nome}`;
-                div.dataset.id = result.cursoid;
-                if (target.classList.contains('courses')) {
-                    div.contentEditable = 'true';
-                    div.addEventListener('blur', () => updateCourse(div));
-                    div.addEventListener('dblclick', (e) => deleteCourse(e, div));
-                } else {
-                    const deleteButton = document.createElement('button');
-                    deleteButton.textContent = 'Delete';
-                    deleteButton.dataset.id = result.alunoID;
-                    deleteButton.addEventListener('click', (e) => deleteStudent(e, div));
-                    div.appendChild(deleteButton);
-                }
-                target.appendChild(div);
+                div.textContent = `${professor.nome}`;
+                div.dataset.id = professor.professorID;
+
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.addEventListener('click', (e) => deleteProfessor(e, div));
+                div.appendChild(deleteButton);
+
+                professorsContainer.appendChild(div);
             });
         }
 
-        // Fetch courses and students on page load
-        async function fetchData() {
+        // Function to fetch professors from the server
+        async function fetchProfessors() {
             try {
-                const [coursesResponse, studentsResponse] = await Promise.all([
-                    fetch('/cursos'),
-                    fetch('/alunos'),
-                ]);
-                const courses = await coursesResponse.json();
-                const students = await studentsResponse.json();
+                const response = await fetch('/professores');
+                const professors = await response.json();
+                displayProfessors(professors);
+            } catch (err) {
+                console.error('Error fetching professors', err);
+            }
+        }
 
-                // Populate course select for students
-                const studentCursoSelect = document.getElementById('student-curso');
+        // Function to create a new professor
+        async function createProfessor(professor) {
+            try {
+                const response = await fetch('/professores', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(professor),
+                });
+                const newProfessor = await response.json();
+                return newProfessor;
+            } catch (err) {
+                console.error('Error creating professor', err);
+            }
+        }
+
+        // Function to delete a professor
+        async function deleteProfessor(event, div) {
+            const id = div.dataset.id;
+            try {
+                await fetch(`/professores/${id}`, {
+                    method: 'DELETE',
+                });
+                div.remove();
+            } catch (err) {
+                console.error('Error deleting professor', err);
+            }
+        }
+
+        // Event listener for professor form submission
+        professorForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('professor-id').value;
+            const name = document.getElementById('professor-name').value;
+            const rp = document.getElementById('professor-rp').value;
+            const professor = { nome: name, rp: rp };
+            if (id !== '0') {
+                // Update existing professor (Not implemented in this example)
+            } else {
+                // Create new professor
+                const result = await createProfessor(professor);
+                const div = document.createElement('div');
+                div.textContent = `${result.nome}`;
+                div.dataset.id = result.professorID;
+
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.addEventListener('click', (e) => deleteProfessor(e, div));
+                div.appendChild(deleteButton);
+
+                document.querySelector('.professors').appendChild(div);
+            }
+            // Clear form fields
+            document.getElementById('professor-name').value = '';
+            document.getElementById('professor-rp').value = '';
+        });
+
+        // Fetch professors when the page loads
+        fetchProfessors();
+
+
+        // Função para preencher o formulário de atualização com os detalhes do curso selecionado
+        function fillUpdateForm(div) {
+            const courseIdInput = document.getElementById('courseId');
+            const courseNameInput = document.getElementById('courseName');
+
+            courseIdInput.value = div.dataset.id;
+            courseNameInput.value = div.textContent;
+        }
+
+        // Função para enviar a solicitação de atualização do curso
+        async function updateCourse() {
+            const courseId = document.getElementById('courseId').value;
+            const courseName = document.getElementById('courseName').value;
+
+            try {
+                const response = await fetch(`/cursos/${courseId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ nome: courseName })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to update course');
+                }
+
+                const updatedCourse = await response.json();
+                console.log('Course updated successfully:', updatedCourse);
+                alert('Course updated successfully!');
+            } catch (error) {
+                console.error('Error updating course:', error);
+                alert('Error updating course. Check the console for more details.');
+            }
+        }
+
+        // Event listener para o formulário de curso
+        document.getElementById('course-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const courseId = document.getElementById('course-id').value;
+            const courseName = document.getElementById('course-name').value;
+            const course = { nome: courseName };
+
+            try {
+                let response;
+                if (courseId !== '0') {
+                    response = await fetch(`/cursos/${courseId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(course)
+                    });
+                } else {
+                    response = await fetch('/cursos', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(course)
+                    });
+                }
+
+                if (!response.ok) {
+                    throw new Error('Failed to save course');
+                }
+
+                const savedCourse = await response.json();
+                console.log('Course saved successfully:', savedCourse);
+                alert('Course saved successfully!');
+
+                // Limpa o formulário após salvar/atualizar
+                document.getElementById('course-id').value = '0';
+                document.getElementById('course-name').value = '';
+
+                // Recarrega os cursos para exibir o curso recém-salvo/atualizado
+                await fetchData();
+            } catch (error) {
+                console.error('Error saving course:', error);
+                alert('Error saving course. Check the console for more details.');
+            }
+        });
+
+
+        async function fetchCoursesAndPopulateSelect() {
+            const studentCursoSelect = document.getElementById('student-curso');
+            try {
+                const response = await fetch('/cursos');
+                const courses = await response.json();
+
                 courses.forEach(course => {
                     const option = document.createElement('option');
                     option.value = course.cursoid;
                     option.textContent = course.nome;
                     studentCursoSelect.appendChild(option);
                 });
-
-                displayResults(courses, document.querySelector('.courses'));
-                displayResults(students, document.querySelector('.students'));
-            } catch (err) {
-                console.error('Error fetching data', err);
+            } catch (error) {
+                console.error('Error fetching courses:', error);
             }
         }
 
-        // Create, update, and delete course functions
-        async function createCourse(course) {
+        // Função para enviar a solicitação de adicionar/atualizar aluno
+        async function saveStudent() {
+            const studentId = document.getElementById('student-id').value;
+            const studentName = document.getElementById('student-name').value;
+            const studentRa = document.getElementById('student-ra').value;
+            const studentCursoId = document.getElementById('student-curso').value;
+
+            const student = {
+                nome: studentName,
+                ra: studentRa,
+                cursoId: studentCursoId
+            };
+
             try {
-                const response = await fetch('/cursos', {
-                    method: 'POST',headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(course),
-                });
-                const result = await response.json();
-                return result;
-            } catch (err) {
-                console.error('Error creating course', err);
+                let response;
+                if (studentId !== '0') {
+                    response = await fetch(`/alunos/${studentId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(student)
+                    });
+                } else {
+                    response = await fetch('/alunos', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(student)
+                    });
+                }
+
+                if (!response.ok) {
+                    throw new Error('Failed to save student');
+                }
+
+                const savedStudent = await response.json();
+                console.log('Student saved successfully:', savedStudent);
+                alert('Student saved successfully!');
+
+                // Limpa o formulário após salvar/atualizar
+                document.getElementById('student-id').value = '0';
+                document.getElementById('student-name').value = '';
+                document.getElementById('student-ra').value = '';
+
+                // Recarrega os alunos para exibir o aluno recém-salvo/atualizado
+                await fetchData();
+            } catch (error) {
+                console.error('Error saving student:', error);
+                alert('Error saving student. Check the console for more details.');
             }
         }
 
-        async function updateCourse(div) {
-            const id = div.dataset.id;
-            const newName = div.textContent;
-            try {
-                const response = await fetch(`/cursos/${id}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ nome: newName }),
-                });
-                const result = await response.json();
-                div.dataset.id = result.cursoid;
-            } catch (err) {
-                console.error('Error updating course', err);
-            }
-        }
+        fetchCoursesAndPopulateSelect();
 
-        async function deleteCourse(event, div) {
-            const id = div.dataset.id;
-            try {
-                await fetch(`/cursos/${id}`, {
-                    method: 'DELETE',
-                });
-                div.remove();
-            } catch (err) {
-                console.error('Error deleting course', err);
-            }
-        }
 
-        // Create, update, and delete student functions
-        async function createStudent(student) {
-            try {
-                const response = await fetch('/alunos', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(student),
-                });
-                const result = await response.json();
-                return result;
-            } catch (err) {
-                console.error('Error creating student', err);
-            }
-        }
-
-        async function updateStudent(student) {
-            try {
-                const response = await fetch(`/alunos/${student.alunoID}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(student),
-                });
-                const result = await response.json();
-                return result;
-            } catch (err) {
-                console.error('Error updating student', err);
-            }
-        }
-
-        async function deleteStudent(event, div) {
-            const id = div.dataset.id;
-            try {
-                await fetch(`/alunos/${id}`, {
-                    method: 'DELETE',
-                });
-                div.remove();
-            } catch (err) {
-                console.error('Error deleting student', err);
-            }
-        }
-
-        // Event listeners for forms
-        courseForm.addEventListener('submit', async (e) => {
+        // Event listener para o formulário de aluno
+        document.getElementById('student-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const id = document.getElementById('course-id').value;
-            const name = document.getElementById('course-name').value;
-            const course = { nome: name };
-            if (id !== '0') {
-                course.cursoid = id;
-                await updateCourse(course);
-                document.getElementById('course-id').value = '0';
-            } else {
-                const result = await createCourse(course);
-                const div = document.createElement('div');
-                div.textContent = `${result.nome}`;
-                div.dataset.id = result.cursoid;
-                div.contentEditable = 'true';
-                div.addEventListener('blur', () => updateCourse(div));
-                div.addEventListener('dblclick', (e) => deleteCourse(e, div));
-                document.querySelector('.courses').appendChild(div);
-            }
-            document.getElementById('course-name').value = '';
+            await saveStudent();
         });
 
-        studentForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const id = document.getElementById('student-id').value;
-            const name = document.getElementById('student-name').value;
-            const ra = document.getElementById('student-ra').value;
-            const cursoId = document.getElementById('student-curso').value;
-const student = {
-                nome: name,
-                ra: ra,
-                cursoId: cursoId,
-            };
-            if (id !== '0') {
-                student.alunoID = id;
-                await updateStudent(student);
-                document.getElementById('student-id').value = '0';
-            } else {
-                const result = await createStudent(student);
+        async function fetchData() {
+            try {
+                // Fetch dos cursos
+                const coursesResponse = await fetch('/cursos');
+                const courses = await coursesResponse.json();
+                displayResults(courses, 'course-results');
+
+                // Fetch dos alunos
+                const studentsResponse = await fetch('/alunos');
+                const students = await studentsResponse.json();
+                displayStudents(students);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        function displayResults(results, targetId) {
+    const targetDiv = document.getElementById(targetId);
+    targetDiv.innerHTML = ''; // Limpa o conteúdo atual
+
+    results.forEach(item => {
+        const div = document.createElement('div');
+        div.textContent = `${item.nome}`;
+        div.dataset.id = item.id; // Corrigido para usar o ID genérico
+
+        // Botão de exclusão
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.addEventListener('click', () => deleteItem('curso', item.id));
+        div.appendChild(deleteButton);
+
+        targetDiv.appendChild(div);
+    });
+}
+
+        // Função para exibir os resultados dos alunos
+        function displayStudents(results) {
+            const studentsDiv = document.getElementById('student-results');
+            studentsDiv.innerHTML = ''; // Limpa o conteúdo atual
+
+            results.forEach(student => {
                 const div = document.createElement('div');
-                div.textContent = `${result.nome}`;
-                div.dataset.id = result.alunoID;
+                div.textContent = `${student.nome} - RA: ${student.ra}`;
+                div.dataset.id = student.id; // Corrigido para usar o ID genérico
+
+                // Botão de exclusão
                 const deleteButton = document.createElement('button');
                 deleteButton.textContent = 'Delete';
-                deleteButton.dataset.id = result.alunoID;
-                deleteButton.addEventListener('click', (e) => deleteStudent(e, div));
+                deleteButton.addEventListener('click', () => deleteItem('aluno', student.id));
                 div.appendChild(deleteButton);
-                document.querySelector('.students').appendChild(div);
-            }
-            document.getElementById('student-name').value = '';
-            document.getElementById('student-ra').value = '';
-            document.getElementById('student-curso').value = '0';
-        });
 
+                studentsDiv.appendChild(div);
+            });
+        }
+
+        // Função para excluir um item (curso ou aluno)
+        async function deleteItem(entityType, itemId) {
+            try {
+                const response = await fetch(`/${entityType}s/${itemId}`, {
+                    method: 'DELETE',
+                });
+                if (!response.ok) {
+                    throw new Error(`Failed to delete ${entityType}`);
+                }
+                alert(`${entityType} deleted successfully!`);
+                // Recarregar os dados após a exclusão
+                fetchData();
+            } catch (error) {
+                console.error(`Error deleting ${entityType}:`, error);
+                alert(`Error deleting ${entityType}. Check the console for more details.`);
+            }
+        }
+
+        // Chamada para buscar dados ao carregar a página
         fetchData();
+
     </script>
 </body>
 </html>
