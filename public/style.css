@@ -1,12 +1,88 @@
-table {
+/* Adicione seus estilos CSS aqui */
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+h1 {
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+}
+
+input[type="text"],
+input[type="number"],
+select {
     width: 100%;
-    border-collapse: collapse;
-}
-th, td {
-    border: 1px solid black;
     padding: 8px;
-    text-align: left;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
 }
-th {
-    background-color: #f2f2f2;
+
+button[type="submit"],
+button[type="button"] {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button[type="submit"]:hover,
+button[type="button"]:hover {
+    background-color: #0056b3;
+}
+.course-results,
+.results,
+.professors,
+.materias {
+    margin-top: 20px;
+}
+.course-results div,
+.results div,
+.professors div,
+.materias div {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.course-results  div button,
+.results div button,
+.professors div button,
+.materias div button {
+    margin-left: 10px;
+    padding: 5px 10px;
+    background-color: #dc3545;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.results div button:hover,
+.professors div button:hover,
+.materias div button:hover {
+    background-color: #c82333;
 }

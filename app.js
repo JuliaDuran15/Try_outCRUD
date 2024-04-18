@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const { Pool } = require('pg');
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = 3000;
 
 app.use(express.static('public')); // Serve static files from the 'public' directory
 
@@ -196,6 +196,60 @@ app.delete('/professores/:id', async (req, res) => {
   }
 });
 
+// Rota para obter todas as matérias
+
+app.get('/materias', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM Materia');
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Erro ao executar consulta', err);
+    res.status(500).send('Erro ao obter matérias');
+  }
+});
+// Rota para criar uma nova matéria
+app.post('/materias', async (req, res) => {
+  const { nome, cursoId, professorId } = req.body;
+  try {
+    const result = await pool.query('INSERT INTO Materia (Nome, CursoID, ProfessorID) VALUES ($1, $2, $3) RETURNING *', [nome, cursoId, professorId]);
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error('Error executing query', err);
+    res.status(500).send('Error creating subject');
+  }
+});
+
+// Rota para atualizar uma matéria existente
+app.put('/materias/:id', async (req, res) => {
+  const { id } = req.params;
+  const { nome, cursoId, professorId } = req.body;
+  try {
+    const result = await pool.query('UPDATE Materia SET Nome = $1, CursoID = $2, ProfessorID = $3 WHERE MateriaID = $4 RETURNING *', [nome, cursoId, professorId, id]);
+    if (result.rows.length > 0) {
+      res.json(result.rows[0]);
+    } else {
+      res.status(404).send('Subject not found');
+    }
+  } catch (err) {
+    console.error('Error executing query', err);
+    res.status(500).send('Error updating subject');
+  }
+});
+
+// Rota para excluir uma matéria
+app.delete('/materias/:id', async (req, res) => {
+  const { id } = req.params;
+  if (!Number.isInteger(parseInt(id))) {
+    return res.status(400).send('Invalid subject ID');
+  }
+  try {
+    await pool.query('DELETE FROM Materia WHERE MateriaID = $1', [id]);
+    res.send('Subject deleted successfully');
+  } catch (err) {
+    console.error('Error executing query', err);
+    res.status(500).send('Error deleting subject');
+  }
+});
 
 
 // Inicia o servidor
