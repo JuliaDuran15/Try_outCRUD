@@ -78,7 +78,28 @@ async function fetchSubjects() {
         alert('Failed to connect to the server or fetch data.');
     }
 }
+async function deleteSubject() {
+    const id = document.getElementById('deleteId').value;
+    if (!id) {
+        alert('Please enter a valid subject ID.');
+        return;
+    }
 
+    try {
+        const response = await fetch(`/materias/${id}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            alert('Subject deleted successfully!');
+        } else {
+            alert('Failed to delete subject: ' + await response.text());
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to connect to the server.');
+    }
+}
 function displaySubjects(subjects) {
     const container = document.getElementById('subjectsContainer');
     container.innerHTML = ''; // Clear previous entries
@@ -90,6 +111,7 @@ function displaySubjects(subjects) {
         container.appendChild(div);
     });
 }
+
 
 
 const professorForm = document.getElementById('professor-form');
