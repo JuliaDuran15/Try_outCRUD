@@ -26,7 +26,9 @@
         <button type="button" onclick="updateCourse()">Atualizar Curso</button>
     </form>
 
-    <h1>Students</h1>
+    <h1>Estudantes
+        
+    </h1>
     <form id="student-form">
         <input type="hidden" id="student-id" value="0">
         <label for="student-name">Name:</label>
@@ -53,100 +55,42 @@
     <div class="professors"></div>
 
     <h1>Materias</h1>
-    <form id="materia-form">
-        <input type="hidden" id="materia-id" value="0">
-        <label for="materia-nome">Nome:</label>
-        <input type="text" id="materia-nome" required>
-        <label for="materia-cursoId">Curso ID:</label>
-        <input type="number" id="materia-cursoId" required>
-        <label for="materia-professorId">Professor ID:</label>
-        <input type="number" id="materia-professorId" required>
-        <button type="submit">Salvar</button>
-    </form>
-    <div class="materias"></div>
-
+    <div>
+        <label for="deleteId">Subject ID:</label>
+        <input type="text" id="deleteId" name="deleteId">
+        <button onclick="deleteSubject()">Delete Subject</button>
+    </div>
+    <h2>Lista de materias</h2>
+    <div id="subjectsContainer"></div>
+    <button onclick="fetchSubjects()">Refresh Subjects</button>
     <script>
-const materiaForm = document.getElementById('materia-form');
-const materiaNomeInput = document.getElementById('materia-nome');
-const materiaCursoIdInput = document.getElementById('materia-cursoId');
-const materiaProfessorIdInput = document.getElementById('materia-professorId');
-const materiasContainer = document.querySelector('.materias');
-
-// Function to fetch all subjects
-async function fetchMaterias() {
+async function fetchSubjects() {
     try {
-        const response = await fetch('/materias');
-        const materias = await response.json();
-        materiasContainer.innerHTML = '';
-        materias.forEach(materia => {
-            materiasContainer.innerHTML += `<div>ID: ${materia.MateriaID}, Nome: ${materia.Nome}, Curso ID: ${materia.CursoID}, Professor ID: ${materia.ProfessorID} <button onclick="editMateria(${materia.MateriaID})">Editar</button> <button onclick="deleteMateria(${materia.MateriaID})">Excluir</button></div>`;
-        });
-    } catch (error) {
-        console.error('Erro ao buscar matérias', error);
-    }
-}
-
-// Function to add or update a subject
-async function saveMateria(event) {
-    event.preventDefault();
-    const id = parseInt(materiaIdInput.value);
-    const nome = materiaNomeInput.value;
-    const cursoId = parseInt(materiaCursoIdInput.value);
-    const professorId = parseInt(materiaProfessorIdInput.value);
-    const method = id === 0 ? 'POST' : 'PUT';
-    try {
-        const response = await fetch(`/materias/${id}`, {
-            method: method,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ nome, cursoId, professorId })
-        });
+        const response = await fetch('/materias'); // Sending a GET request to the server
         if (response.ok) {
-            console.log('Matéria salva com sucesso');
-            materiaForm.reset();
-            fetchMaterias(); // Refresh subjects list after adding or updating
+            const subjects = await response.json(); // Parsing JSON response into JavaScript object
+            displaySubjects(subjects); // Function to display the subjects on the web page
         } else {
-            console.error('Falha ao salvar matéria');
+            throw new Error('Failed to fetch subjects: ' + response.statusText);
         }
     } catch (error) {
-        console.error('Erro ao salvar matéria', error);
+        console.error('Error:', error);
+        alert('Failed to connect to the server or fetch data.');
     }
 }
 
-// Function to edit a subject
-async function editMateria(id) {
-    try {
-        const response = await fetch(`/materias/${id}`);
-        const materia = await response.json();
-        materiaIdInput.value = materia.MateriaID;
-        materiaNomeInput.value = materia.Nome;
-        materiaCursoIdInput.value = materia.CursoID;
-        materiaProfessorIdInput.value = materia.ProfessorID;
-    } catch (error) {
-        console.error('Erro ao editar matéria', error);
-    }
+function displaySubjects(subjects) {
+    const container = document.getElementById('subjectsContainer');
+    container.innerHTML = ''; // Clear previous entries
+
+    subjects.forEach(subject => {
+        const div = document.createElement('div');
+        div.className = 'subject';
+        div.innerHTML = `<strong>ID:</strong> ${subject.materiaid} <strong>Name:</strong> ${subject.nome}`;
+        container.appendChild(div);
+    });
 }
 
-// Function to delete a subject
-async function deleteMateria(id) {
-    try {
-        const response = await fetch(`/materias/${id}`, {
-            method: 'DELETE'
-        });
-        if (response.ok) {
-            console.log('Matéria excluída com sucesso');
-            fetchMaterias(); // Refresh subjects list after deleting
-        } else {
-            console.error('Falha ao excluir matéria');
-        }
-    } catch (error) {
-        console.error('Erro ao excluir matéria', error);
-    }
-}
-
-// Fetch subjects when the page loads
-fetchMaterias();
 
 const professorForm = document.getElementById('professor-form');
     const professorsContainer = document.querySelector('.professors');
