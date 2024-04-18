@@ -3,10 +3,9 @@ const bodyParser = require('body-parser');
 const { Pool } = require('pg');
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 app.use(express.static('public')); // Serve static files from the 'public' directory
-
 
 // Configuração do pool de conexão com o banco de dados
 const pool = new Pool({
@@ -20,6 +19,7 @@ const pool = new Pool({
 // Middleware para o parsing do corpo da requisição
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
 
 // Rota raiz
 app.get('/', (req, res) => {
@@ -199,6 +199,7 @@ app.delete('/professores/:id', async (req, res) => {
 
 
 // Inicia o servidor
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });
+module.exports = { app, server }; // Exporting app and server for testing

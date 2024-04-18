@@ -1,6 +1,8 @@
 const request = require('supertest');
 const app = require('../app'); // Supondo que o seu arquivo principal seja 'app.js'
 
+
+
 describe('Testando as rotas do aplicativo', () => {
   // Teste para a rota raiz
   it('Deve retornar status 200 para a rota raiz', async () => {
