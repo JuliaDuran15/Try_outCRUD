@@ -1,53 +1,46 @@
 const request = require('supertest');
-const app = require('../app'); // Supondo que o seu arquivo principal seja 'app.js'
+const { app, server } = require('../app'); // Importa o aplicativo e o servidor
 
-
-
-describe('Testando as rotas do aplicativo', () => {
-  // Teste para a rota raiz
-  it('Deve retornar status 200 para a rota raiz', async () => {
-    const response = await request(app).get('/');
-    expect(response.statusCode).toBe(200);
+// Teste para a rota de exclusão de matéria
+describe('DELETE /materias/:id', () => {
+  it('should delete a subject', async () => {
+    const response = await request(app).delete('/materias/1'); // Substitua 1 pelo ID válido de uma matéria
+    expect(response.status).toBe(200);
+    expect(response.text).toBe('Subject deleted successfully');
   });
+});
 
-  // Teste para a rota de obtenção de todos os cursos
-  it('Deve retornar status 200 e um array de cursos para a rota /cursos', async () => {
-    const response = await request(app).get('/cursos');
-    expect(response.statusCode).toBe(200);
+// Teste para a rota de exclusão de professor
+describe('DELETE /professores/:id', () => {
+  it('should delete a professor', async () => {
+    const response = await request(app).delete('/professores/1'); // Substitua 1 pelo ID válido de um professor
+    expect(response.status).toBe(200);
+    expect(response.text).toBe('Professor deleted successfully');
+  });
+});
+
+// Teste para a rota de atualização de curso
+describe('PUT /cursos/:id', () => {
+  it('should update a course', async () => {
+    const response = await request(app)
+      .put('/cursos/1') // Substitua 1 pelo ID válido de um curso
+      .send({ nome: 'Novo Nome do Curso' }); // Novo nome para o curso
+    expect(response.status).toBe(200);
+    expect(response.body.nome).toBe('Novo Nome do Curso');
+  });
+});
+
+// Teste para a rota de obtenção de estudantes
+describe('GET /alunos', () => {
+  it('should get all students', async () => {
+    const response = await request(app).get('/alunos');
+    expect(response.status).toBe(200);
     expect(Array.isArray(response.body)).toBe(true);
+    // Verifique outras expectativas conforme necessário
   });
+});
 
-  // Teste para a rota de criação de um novo curso
-  it('Deve retornar status 201 e o curso criado para a rota /cursos', async () => {
-    const response = await request(app)
-      .post('/cursos')
-      .send({ nome: 'Novo Curso' });
-    expect(response.statusCode).toBe(201);
-    expect(response.body).toHaveProperty('Nome', 'Novo Curso');
-  });
-
-  // Teste para a rota de atualização de um curso existente
-  it('Deve retornar status 200 e o curso atualizado para a rota /cursos/:id', async () => {
-    // Supondo que exista pelo menos um curso no banco de dados
-    const cursos = await request(app).get('/cursos');
-    const cursoId = cursos.body[0].CursoID;
-    
-    const response = await request(app)
-      .put(`/cursos/${cursoId}`)
-      .send({ nome: 'Curso Atualizado' });
-    expect(response.statusCode).toBe(200);
-    expect(response.body).toHaveProperty('Nome', 'Curso Atualizado');
-  });
-
-  // Teste para a rota de exclusão de um curso
-  it('Deve retornar status 200 para a rota de exclusão de um curso', async () => {
-    // Supondo que exista pelo menos um curso no banco de dados
-    const cursos = await request(app).get('/cursos');
-    const cursoId = cursos.body[0].CursoID;
-    
-    const response = await request(app).delete(`/cursos/${cursoId}`);
-    expect(response.statusCode).toBe(200);
-  });
-
-  // Testes semelhantes podem ser escritos para as outras rotas
+// Após todos os testes, fecha o servidor
+afterAll(async () => {
+  await server.close();
 });
